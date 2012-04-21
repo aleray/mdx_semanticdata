@@ -56,15 +56,15 @@ Custom default namespace:
 Dependencies
 ------------
 
-* [Markdown 2.0+](http://www.freewisdom.org/projects/python-markdown/)
+- [Markdown 2.0+](http://www.freewisdom.org/projects/python-markdown/)
 
 
 Copyright
 ---------
 
-2011, 2012 [The active archives contributors](http://activearchives.org/)
-2011, 2012 [Michael Murtaugh](http://automatist.org/)
-2011, 2012 [Alexandre Leray](http://stdin.fr/)
+- 2011, 2012 [The active archives contributors](http://activearchives.org/)
+- 2011, 2012 [Michael Murtaugh](http://automatist.org/)
+- 2011, 2012 [Alexandre Leray](http://stdin.fr/)
 
 All rights reserved.
 
