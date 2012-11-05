@@ -23,7 +23,8 @@ Usage
 
 Custom tree element:
 
-    >>> def make_elt (rel, target, label):
+    >>> def make_elt (md, rel, target, label):
+    ...     # `md` is the Markdown instance
     ...     if rel == "dc:title":
     ...         elt = markdown.util.etree.Element('cite')
     ...     else:
@@ -69,8 +70,12 @@ This software is released under the modified BSD License.
 See LICENSE.md for details.
 '''
 
+
 import markdown
 import re
+
+
+__version__ = "1.1"
 
 
 pattern = r"""
@@ -82,7 +87,7 @@ pattern = r"""
 """.strip()
 
 
-def make_elt (rel, target, label):
+def make_elt (md, rel, target, label):
     elt = markdown.util.etree.Element('span')
     elt.set('content', target)
     elt.text = label or target
@@ -126,7 +131,7 @@ class SemanticDataPattern(markdown.inlinepatterns.Pattern):
         rel = d.get("rel")
         if rel:
             rel = "%s:%s" % (namespace, d.get("rel"))
-        return fn(rel, d.get("target"), d.get("label"))
+        return fn(self.markdown, rel, d.get("target"), d.get("label"))
 
 
 def makeExtension(configs={}) :

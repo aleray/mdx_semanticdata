@@ -6,7 +6,7 @@ from setuptools import setup
 
 setup(
     name='mdx_semanticdata',
-    version='1.0',
+    version='1.1',
     author='Alexandre Leray',
     author_email='alexandre@stdin.fr',
     description='Python-Markdown extension to add support for semantic data (RDFa).',

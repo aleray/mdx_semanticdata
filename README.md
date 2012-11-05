@@ -26,7 +26,8 @@ Usage
 
 Custom tree element:
 
-    >>> def make_elt (rel, target, label):
+    >>> def make_elt (md, rel, target, label):
+    ...     # `md` is the Markdown instance
     ...     if rel == "dc:title":
     ...         elt = markdown.util.etree.Element('cite')
     ...     else:
