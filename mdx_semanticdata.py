@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 
-'''
+"""
 Semantic data Extension for Python-Markdown
 ===========================================
 
@@ -62,83 +62,80 @@ Copyright
 
 2011, 2012 [The active archives contributors](http://activearchives.org/)
 2011, 2012 [Michael Murtaugh](http://automatist.org/)
-2011, 2012 [Alexandre Leray](http://stdin.fr/)
+2011, 2022 [Alexandre Leray](http://stdin.fr/)
 
 All rights reserved.
 
 This software is released under the modified BSD License. 
 See LICENSE.md for details.
-'''
+"""
 
 
-import markdown
 import re
+from markdown.inlinepatterns import InlineProcessor
+from markdown.extensions import Extension
+import xml.etree.ElementTree as etree
 
 
-__version__ = "1.1"
+__version__ = "2.0"
 
 
-pattern = r"""
-\%\%\s*
-    (?:((?P<namespace>\w+):)?(?P<rel>[^\%#]+?) \s* ::)? \s*
-    (?P<target>.+?) \s*
-    (?:\| \s* (?P<label>[^\]]+?) \s*)?
-\%\%
-""".strip()
+SEMANTIC_DATA_PATTERN = r"%%\s*(?:(?:(?P<ns_typeof>\w+):)?(?P<typeof>[^%#]+?)\s*::\s*)?(?:(?P<ns_prop>\w+):)?(?P<prop>[^%#]+?)\s*::\s*(?P<content>.+?)(?:\s*\|\s*(?P<label>.+?))?\s*%%"
 
 
-def make_elt (md, rel, target, label):
-    elt = markdown.util.etree.Element('span')
-    elt.set('content', target)
-    elt.text = label or target
-    if rel:
-        elt.set('property', rel)
-    return elt
+# def make_elt (md, rel, target, label):
+def make_elt(ns_typeof, typeof, ns_prop, prop, content, label):
+    el = etree.Element("span")
+
+    if typeof:
+        val = "{}:{}".format(ns_typeof, typeof)
+        el.set("typeof", val)
+
+    prop = "{}:{}".format(ns_prop, prop)
+    el.set("property", prop)
+    el.set("content", content)
+    el.text = label or content
+    return el
 
 
-class SemanticDataExtension(markdown.Extension):
-    def __init__(self, configs):
-        self.config = {
-            'make_elt' : [make_elt, 'Callback to convert parts into an HTML/etree element (default <span>)'],
-            'namespace' : ['aa', 'Default namespace'],
-        }
-        # Override defaults with user settings
-        for key, value in configs :
-            self.setConfig(key, value)
-
-    def extendMarkdown(self, md, md_globals):
-        self.md = md
-
-        # append to end of inline patterns
-        pat = SemanticDataPattern(self.config, md)
-        md.inlinePatterns.add('semanticdata', pat, "<not_strong")
-
-
-class SemanticDataPattern(markdown.inlinepatterns.Pattern):
-    def __init__(self, config, md=None):
-        markdown.inlinepatterns.Pattern.__init__(self, '', md)
-        self.compiled_re = re.compile("^(.*?)%s(.*?)$" % pattern, re.DOTALL | re.X)
+class SemanticDataInlineProcessor(InlineProcessor):
+    def __init__(self, pattern, config):
+        super().__init__(pattern)
         self.config = config
 
-    def getCompiledRegExp (self):
-        return self.compiled_re
-
-    def handleMatch(self, m):
-        """ Returns etree """
+    def handleMatch(self, m, data):
         d = m.groupdict()
-        fn = self.config['make_elt'][0]
-        namespace = d.get("namespace") or self.config['namespace'][0]
-        rel = d.get("rel")
-        if rel:
-            rel = "%s:%s" % (namespace, d.get("rel"))
-        return fn(self.markdown, rel, d.get("target"), d.get("label"))
+
+        if not d.get("ns_typeof"):
+            d["ns_typeof"] = self.config.get("namespace")
+
+        if not d.get("ns_prop"):
+            d["ns_prop"] = self.config.get("namespace")
+
+        el = make_elt(**d)
+        return el, m.start(0), m.end(0)
 
 
-def makeExtension(configs={}) :
-    return SemanticDataExtension(configs=configs)
+class SemanticDataExtension(Extension):
+    def __init__(self, **kwargs):
+        self.config = {
+            "make_elt": [
+                make_elt,
+                "Callback to convert parts into an HTML/etree element (default <span>)",
+            ],
+            "namespace": ["aa", "Default namespace"],
+        }
+        super(SemanticDataExtension, self).__init__(**kwargs)
+
+    def extendMarkdown(self, md):
+        md.inlinePatterns.register(
+            SemanticDataInlineProcessor(SEMANTIC_DATA_PATTERN, self.getConfigs()),
+            "semanticdata",
+            75,
+        )
 
 
-if __name__ == "__main__":
-    import doctest
-    doctest.testmod()
+# if __name__ == "__main__":
+#     import doctest
 
+#     doctest.testmod()
