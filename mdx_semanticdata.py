@@ -80,7 +80,7 @@ import xml.etree.ElementTree as etree
 __version__ = "2.0"
 
 
-SEMANTIC_DATA_PATTERN = r"%%\s*(?:(?:(?P<ns_typeof>\w+):)?(?P<typeof>[^%#]+?)\s*::\s*)?(?:(?P<ns_prop>\w+):)?(?P<prop>[^%#]+?)\s*::\s*(?P<content>.+?)(?:\s*\|\s*(?P<label>.+?))?\s*%%"
+SEMANTIC_DATA_PATTERN = r"{}\s*(?:(?:(?P<ns_typeof>\w+):)?(?P<typeof>[^%#]+?)\s*::\s*)?(?:(?P<ns_prop>\w+):)?(?P<prop>[^%#]+?)\s*::\s*(?P<content>.+?)(?:\s*\|\s*(?P<label>.+?))?\s*{}"
 
 
 # def make_elt (md, rel, target, label):
@@ -124,12 +124,15 @@ class SemanticDataExtension(Extension):
                 "Callback to convert parts into an HTML/etree element (default <span>)",
             ],
             "namespace": ["aa", "Default namespace"],
+            "delimiters": ["%%|%%", "Default start/end delimiters, seperated by a |"],
         }
         super(SemanticDataExtension, self).__init__(**kwargs)
 
     def extendMarkdown(self, md):
+        start, end = self.getConfig("delimiters").split("|")
+        pattern = SEMANTIC_DATA_PATTERN.format(start, end)
         md.inlinePatterns.register(
-            SemanticDataInlineProcessor(SEMANTIC_DATA_PATTERN, self.getConfigs()),
+            SemanticDataInlineProcessor(pattern, self.getConfigs()),
             "semanticdata",
             75,
         )

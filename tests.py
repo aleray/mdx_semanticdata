@@ -78,3 +78,22 @@ class TestHr(TestCase):
             extensions=[SemanticDataExtension()],
             output_format="html",
         )
+
+    def test_delimiters(self):
+        self.assertMarkdownRenders(
+            # The Markdown source text used as input
+            self.dedent(
+                """
+                {{dc:book::author :: Sherry Turkle | Turkle's}}
+                """
+            ),
+            # The expected HTML output
+            self.dedent(
+                """
+                <p><span content="Sherry Turkle" property="aa:author" typeof="dc:book">Turkle's</span></p>
+                """
+            ),
+            # Other keyword arguments to pass to `markdown.markdown`
+            extensions=[SemanticDataExtension(delimiters="{{|}}")],
+            output_format="html",
+        )
