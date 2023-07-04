@@ -135,6 +135,10 @@ class SemanticDataExtension(Extension):
         )
 
 
+def makeExtension(**kwargs):
+    return SemanticDataExtension(**kwargs)
+
+
 # if __name__ == "__main__":
 #     import doctest
 
