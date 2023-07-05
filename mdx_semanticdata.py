@@ -80,7 +80,24 @@ import xml.etree.ElementTree as etree
 __version__ = "2.0"
 
 
-SEMANTIC_DATA_PATTERN = r"{}\s*(?:(?:(?P<ns_typeof>\w+):)?(?P<typeof>[^%#]+?)\s*::\s*)?(?:(?P<ns_prop>\w+):)?(?P<prop>[^%#]+?)\s*::\s*(?P<content>.+?)(?:\s*\|\s*(?P<label>.+?))?\s*{}"
+SEMANTIC_DATA_PATTERN = r"""
+    {}\s*                             # Opening {{
+    (
+        (?:                           # Optional namespace and typeof group
+            (?:(?P<ns_typeof>\w+):)?  # Namespace before typeof (optional)
+            (?P<typeof>\w+?)          # Typeof (optional)
+            \s*::\s*                  # :: separator (optional)
+        )?
+        (?:                           # Optional namespace and prop group
+            (?P<ns_prop>\w+):         # Namespace before prop (optional)
+        )?
+        (?P<prop>\w+?)                # Property
+        \s*::                         # :: separator (mandatory)
+    )?
+    \s*(?P<content>.+?)               # Content
+    (?:\s*\|\s*(?P<label>.+?))?       # Optional label after |
+    \s*{}                             # Closing }}
+"""
 
 
 # def make_elt (md, rel, target, label):
@@ -101,6 +118,8 @@ def make_elt(ns_typeof, typeof, ns_prop, prop, content, label):
 class SemanticDataInlineProcessor(InlineProcessor):
     def __init__(self, pattern, config):
         super().__init__(pattern)
+        self.compiled_re = re.compile(pattern, re.DOTALL | re.UNICODE | re.VERBOSE)
+
         self.config = config
 
     def handleMatch(self, m, data):
@@ -131,6 +150,7 @@ class SemanticDataExtension(Extension):
     def extendMarkdown(self, md):
         start, end = self.getConfig("delimiters").split("|")
         pattern = SEMANTIC_DATA_PATTERN.format(start, end)
+
         md.inlinePatterns.register(
             SemanticDataInlineProcessor(pattern, self.getConfigs()),
             "semanticdata",

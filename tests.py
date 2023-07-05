@@ -97,3 +97,61 @@ class TestHr(TestCase):
             extensions=[SemanticDataExtension(delimiters="{{|}}")],
             output_format="html",
         )
+
+    def test_delimiters_2(self):
+        self.assertMarkdownRenders(
+            # The Markdown source text used as input
+            self.dedent(
+                """
+                In {{years::1965}}, {{person::Gordon Moore}} made a provocative observation.
+                """
+            ),
+            # The expected HTML output
+            self.dedent(
+                """
+                <p>In <span content="1965" property="aa:years">1965</span>, <span content="Gordon Moore" property="aa:person">Gordon Moore</span> made a provocative observation.</p>
+                """
+            ),
+            # Other keyword arguments to pass to `markdown.markdown`
+            extensions=[SemanticDataExtension(delimiters=r"{{|}}")],
+            output_format="html",
+        )
+
+    def test_delimiters_3(self):
+        self.assertMarkdownRenders(
+            # The Markdown source text used as input
+            self.dedent(
+                """
+                In %%years::1965%%, %%person::Gordon Moore%% made a provocative observation.
+                """
+            ),
+            # The expected HTML output
+            self.dedent(
+                """
+                <p>In <span content="1965" property="aa:years">1965</span>, <span content="Gordon Moore" property="aa:person">Gordon Moore</span> made a provocative observation.</p>
+                """
+            ),
+            # Other keyword arguments to pass to `markdown.markdown`
+            extensions=[SemanticDataExtension()],
+            # extensions=[SemanticDataExtension(delimiters="{{|}}")],
+            output_format="html",
+        )
+
+    def test_delimiters_4(self):
+        self.assertMarkdownRenders(
+            # The Markdown source text used as input
+            self.dedent(
+                """
+                In $$years::1965$$, $$person::Gordon Moore$$ made a provocative observation.
+                """
+            ),
+            # The expected HTML output
+            self.dedent(
+                """
+                <p>In <span content="1965" property="aa:years">1965</span>, <span content="Gordon Moore" property="aa:person">Gordon Moore</span> made a provocative observation.</p>
+                """
+            ),
+            # Other keyword arguments to pass to `markdown.markdown`
+            extensions=[SemanticDataExtension(delimiters="\$\$|\$\$")],
+            output_format="html",
+        )
