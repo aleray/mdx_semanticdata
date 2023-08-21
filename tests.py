@@ -155,3 +155,37 @@ class TestHr(TestCase):
             extensions=[SemanticDataExtension(delimiters="\$\$|\$\$")],
             output_format="html",
         )
+
+    def test_custom_make_elt(self):
+        import xml.etree.ElementTree as etree
+
+        def my_make_elt(ns_typeof, typeof, ns_prop, prop, content, label):
+            el = etree.Element("cite")
+
+            if typeof:
+                val = "{}:{}".format(ns_typeof, typeof)
+                el.set("typeof", val)
+
+            prop = "{}:{}".format(ns_prop, prop)
+            el.set("property", prop)
+            el.set("content", content)
+            el.text = label or content
+            return el
+
+        self.assertMarkdownRenders(
+            # The Markdown source text used as input
+            self.dedent(
+                """
+                %%dc:title::Second Self%%
+                """
+            ),
+            # The expected HTML output
+            self.dedent(
+                """
+                <p><cite content="Second Self" property="dc:title">Second Self</cite></p>
+                """
+            ),
+            # Other keyword arguments to pass to `markdown.markdown`
+            extensions=[SemanticDataExtension(make_elt=my_make_elt)],
+            output_format="html",
+        )

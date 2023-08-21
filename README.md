@@ -60,12 +60,18 @@ Dependencies
 - [Markdown 2.0+](http://www.freewisdom.org/projects/python-markdown/)
 
 
+Running tests
+-------------
+
+    python -m unittest discover tests
+
+
 Copyright
 ---------
 
 - 2011, 2012 [The active archives contributors](http://activearchives.org/)
 - 2011, 2012 [Michael Murtaugh](http://automatist.org/)
-- 2011, 2012 [Alexandre Leray](http://stdin.fr/)
+- 2011, 2023 [Alexandre Leray](http://stdin.fr/)
 
 All rights reserved.
 

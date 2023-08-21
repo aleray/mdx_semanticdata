@@ -131,7 +131,9 @@ class SemanticDataInlineProcessor(InlineProcessor):
         if not d.get("ns_prop"):
             d["ns_prop"] = self.config.get("namespace")
 
-        el = make_elt(**d)
+        fn = self.config.get('make_elt')
+        el = fn(**d)
+
         return el, m.start(0), m.end(0)
 
 
