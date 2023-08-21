@@ -189,3 +189,22 @@ class TestHr(TestCase):
             extensions=[SemanticDataExtension(make_elt=my_make_elt)],
             output_format="html",
         )
+
+    def test_custom_namespace(self):
+        self.assertMarkdownRenders(
+            # The Markdown source text used as input
+            self.dedent(
+                """
+                %%author :: Sherry Turkle | Turkle's%%
+                """
+            ),
+            # The expected HTML output
+            self.dedent(
+                """
+                <p><span content="Sherry Turkle" property="dc:author">Turkle's</span></p>
+                """
+            ),
+            # Other keyword arguments to pass to `markdown.markdown`
+            extensions=[SemanticDataExtension(namespace="dc")],
+            output_format="html",
+        )
